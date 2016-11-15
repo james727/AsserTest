@@ -35,5 +35,7 @@ Will print the following to your terminal:
 ==== assertest_tests: 3/5 tests passed ====
 ```
 
+Note that it will print one of the above statements for each function you apply the decorator to.
+
 ## Todo
 This is still a work in progress - the main thing I'm working on is printing details on failed tests. The logic for initializing the counter variables also needs to be built in to avoid local conflicts.
