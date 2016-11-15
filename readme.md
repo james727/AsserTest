@@ -33,4 +33,4 @@ Will print the following to your terminal:
 ```
 
 ### Todo
-This is still a work in progress - the main thing I'd like to add is printing some details on failed tests
+This is still a work in progress - the main thing I'd like to add is printing some details on failed tests. The logic for initializing the counter variables also needs to be built in to avoid local conflicts.
