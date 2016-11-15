@@ -27,8 +27,7 @@ class AssertTransformer( ast.NodeTransformer ):
         self.pass_counter = pass_counter_name
 
     def visit_Assert( self, node ):
-        # Converts assert statements into try-except-finally blocks that increment
-        # the relevant counters
+        # Converts assert statements into try-except-finally blocks that increment the relevant counters
         try_except_block = self.create_try_except_block( node )
         finally_block = self.create_finally_block( node )
         new_node = ast.TryFinally( body = try_except_block, finalbody = finally_block, nl = True )
@@ -42,7 +41,7 @@ class AssertTransformer( ast.NodeTransformer ):
 
     def create_except_block( self, node ):
         # Placeholder - to be updated to print failed tests
-        #print_statement = ast.Print( dest = None, values = [ast.Str( s = 'failed' ) ], nl = True )
+        # TODO: instead of pass, have it print details of failed test
         except_statement = ast.ExceptHandler( type = None, name = None, body = [ ast.Pass() ] )
         return [ except_statement ]
 
