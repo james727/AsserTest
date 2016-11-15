@@ -1,10 +1,11 @@
 from assertest import assert_tests
 
 @assert_tests
-def tests( x ):
-    assert 5 == 5
-    assert 4 == 1
-    assert 2 == 2
+def assertest_tests( x ):
+    assert x == 5
+    assert x % 2 == 0
+    assert x + 2 == 4
     assert True
+    assert False
 
-tests( 2 )
+assertest_tests( 2 )
