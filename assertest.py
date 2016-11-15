@@ -1,17 +1,17 @@
 import inspect, ast
 
 def assert_tests( f ):
-    tree = get_sanitized_ast( f ) # Get the AST
+    tree, tests = parse_f( f ) # Get AST and test lines
 
     # set up test counters
     test_counter_name, pass_counter_name = get_counter_names( f )
     add_variable_inits( tree, test_counter_name, pass_counter_name )
 
     # transform assert statements
-    transformer = AssertTransformer( "num_tests", "num_passes" )
+    transformer = AssertTransformer( "num_tests", "num_passes", tests )
     transformer.visit( tree )
 
-    # print results at the end
+    # print stuff
     add_print_statements( tree, test_counter_name, pass_counter_name, f.__name__ )
 
     myScope = {} # Create new namespace to compile tree in
@@ -22,9 +22,11 @@ def assert_tests( f ):
 
 class AssertTransformer( ast.NodeTransformer ):
     # Transforms assert statements into try-except-finally blocks, with some logic to track the number of asserts that pass.
-    def __init__( self, assert_counter_name, pass_counter_name ):
+    def __init__( self, assert_counter_name, pass_counter_name, test_lines ):
         self.test_counter = assert_counter_name
         self.pass_counter = pass_counter_name
+        self.test_lines = test_lines
+        self.except_counter = 0
 
     def visit_Assert( self, node ):
         # Converts assert statements into try-except-finally blocks that increment the relevant counters
@@ -41,8 +43,14 @@ class AssertTransformer( ast.NodeTransformer ):
 
     def create_except_block( self, node ):
         # Placeholder - to be updated to print failed tests
-        # TODO: instead of pass, have it print details of failed test
-        except_statement = ast.ExceptHandler( type = None, name = None, body = [ ast.Pass() ] )
+        s = '\nAssert statement #{}:'.format( self.except_counter + 1 )
+        print_node1 = ast.Print( dest = None, values = [ ast.Str( s = s ) ], nl = True )
+
+        s = " >\t" + self.test_lines[ self.except_counter ]
+        print_node2 = ast.Print( dest = None, values = [ ast.Str( s = s ) ], nl = True )
+
+        except_statement = ast.ExceptHandler( type = None, name = None, body = [ print_node1, print_node2 ] )
+        self.except_counter += 1
         return [ except_statement ]
 
     def create_try_except_block( self, node ):
@@ -57,12 +65,22 @@ class AssertTransformer( ast.NodeTransformer ):
         inc_statement = ast.AugAssign( target = ast.Name( id = self.test_counter, ctx = ast.Store() ), op = ast.Add(), value = ast.Num( n = 1 ) )
         return [ inc_statement ]
 
-def get_sanitized_ast( f ):
-    # Gets the AST for a function with decorators removed
+def parse_f( f ):
     src = inspect.getsource( f ) # Get source code
+    tree = get_sanitized_ast( src )
+    tests = get_test_lines( src )
+    return tree, tests
+
+def get_sanitized_ast( src ):
+    # Gets the AST for a function with decorators removed
     tree = ast.parse( src ) # Convert source to AST
     tree.body[0].decorator_list = [] # Remove decorator
     return tree
+
+def get_test_lines( src ):
+    lines = [ line.strip() for line in src.split( "\n" ) ]
+    test_lines = [ line for line in lines if line.startswith( 'assert' ) ]
+    return test_lines
 
 def get_counter_names( f ):
     # Generate counter names that don't conflict with local variables
@@ -78,8 +96,12 @@ def add_variable_inits( tree, t, p ):
     ast.fix_missing_locations( tree )
 
 def add_print_statements( tree, t, p, func_name ):
+    add_end_print_statements( tree, t, p, func_name )
+    add_start_print_statements( tree, func_name )
+
+def add_end_print_statements( tree, t, p, func_name ):
     # Add print statements at end of function
-    s = '==== {}: {}/{} tests passed ===='
+    s = '\n==== {}: {}/{} tests passed ====\n'
     format_args = [ ast.Str( s = func_name ), ast.Name( id = p, ctx = ast.Load() ), ast.Name( id = t, ctx = ast.Load() ) ]
     formatted_string = ast.Attribute( value = ast.Str( s = s ), attr = 'format', ctx = ast.Load() )
 
@@ -88,4 +110,22 @@ def add_print_statements( tree, t, p, func_name ):
     print_node = ast.Print( dest = None, values = [ call_node ], nl = True )
 
     tree.body[ 0 ].body.append( print_node )
+    ast.fix_missing_locations( tree )
+
+def add_start_print_statements( tree, func_name ):
+    # Add print statements at beginning of function
+    s = '\n======== Testing {} ========\n'
+    format_args = [ ast.Str( s = func_name ) ]
+    formatted_string = ast.Attribute( value = ast.Str( s = s ), attr = 'format', ctx = ast.Load() )
+    call_node = ast.Call( func = formatted_string, args = format_args, keywords = [], starargs = None, kwargs = None )
+    print_node1 = ast.Print( dest = None, values = [ call_node ], nl = True )
+
+    num_dashes = ( len( '======== Testing ========' ) + len( func_name
+    ) + 1 - len(' Failures ') ) // 2
+    s = num_dashes * '_' + ' Failures ' + num_dashes * '_'
+    print_node2 = ast.Print( dest = None, values = [ ast.Str( s = s ) ], nl = True )
+
+    old_body = tree.body[ 0 ].body
+    tree.body[ 0 ].body = [ print_node1, print_node2 ] + old_body
+
     ast.fix_missing_locations( tree )

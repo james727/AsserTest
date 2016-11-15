@@ -32,10 +32,20 @@ assertest_tests( 2 )
 Will print the following to your terminal:
 
 ```
+======== Testing assertest_tests ========
+
+_______________ Failures _______________
+
+Assert statement #1:
+ >	assert x == 5
+
+Assert statement #5:
+ >	assert False
+
 ==== assertest_tests: 3/5 tests passed ====
 ```
 
 Note that it will print one of the above statements for each function you apply the decorator to.
 
 ## Todo
-This is still a work in progress - the main thing I'm working on is printing details on failed tests. The logic for initializing the counter variables also needs to be built in to avoid local conflicts.
+This is still a work in progress - the main thing I'm working on is printing details on failed tests (i.e., actually evaluating each side of any comparison operator a la pytest). The logic for initializing the counter variables also needs to be built in to avoid local conflicts.
