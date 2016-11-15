@@ -32,8 +32,5 @@ Will print the following to your terminal:
 ==== assertest_tests: 3/5 tests passed ====
 ```
 
-### How it works
-This works by manipulating the AST of the function the decorator is applied to.
-
 ### Todo
 This is still a work in progress - the main thing I'd like to add is printing some details on failed tests
