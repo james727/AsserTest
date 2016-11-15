@@ -36,10 +36,10 @@ Will print the following to your terminal:
 
 _______________ Failures _______________
 
-Assert statement #1:
+Function line 1:
  >	assert x == 5
 
-Assert statement #5:
+Function line 5:
  >	assert False
 
 ==== assertest_tests: 3/5 tests passed ====
