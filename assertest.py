@@ -43,7 +43,7 @@ class AssertTransformer( ast.NodeTransformer ):
 
     def create_except_block( self, node ):
         # Placeholder - to be updated to print failed tests
-        s = '\nAssert statement #{}:'.format( self.except_counter + 1 )
+        s = '\nFunction line {}:'.format( node.lineno - 2 )
         print_node1 = ast.Print( dest = None, values = [ ast.Str( s = s ) ], nl = True )
 
         s = " >\t" + self.test_lines[ self.except_counter ]
