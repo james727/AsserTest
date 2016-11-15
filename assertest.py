@@ -21,7 +21,7 @@ def assert_tests( f ):
     return f
 
 class AssertTransformer( ast.NodeTransformer ):
-    # Flip addition to subtraction, and vice versa
+    # Transforms assert statements into try-except-finally blocks, with some logic to track the number of asserts that pass.
     def __init__( self, assert_counter_name, pass_counter_name ):
         self.test_counter = assert_counter_name
         self.pass_counter = pass_counter_name
