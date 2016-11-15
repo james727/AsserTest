@@ -10,6 +10,9 @@ def test_f():
   assert f( input5 ) == output5
 ```
 
+This is certainly not an optimal testing practice. AsserTest tries to make it slightly more robust.
+
+## What it does
 AsserTest is a decorator that replaces all assert statements with `Try-Except-Finally` blocks and tells you how many of your assert statements passed. Running the following code:
 
 ```python
@@ -32,5 +35,5 @@ Will print the following to your terminal:
 ==== assertest_tests: 3/5 tests passed ====
 ```
 
-### Todo
-This is still a work in progress - the main thing I'd like to add is printing some details on failed tests. The logic for initializing the counter variables also needs to be built in to avoid local conflicts.
+## Todo
+This is still a work in progress - the main thing I'm working on is printing details on failed tests. The logic for initializing the counter variables also needs to be built in to avoid local conflicts.
